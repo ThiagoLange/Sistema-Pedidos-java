@@ -1,38 +1,105 @@
 import java.text.NumberFormat;
-import java.util.List;
+import java.util.InputMismatchException;
 import java.util.Locale;
+import java.util.Scanner;
 
 public class RestauranteApp {
 
     public static void main(String[] args) {
-        // --- Setup do Restaurante ---
-        Restaurante cantina = new Restaurante("Cantina da Nona");
-        cantina.adicionarItem(new ItemCardapio("P01", "Pizza Margherita", 55.50));
-        cantina.adicionarItem(new ItemCardapio("M01", "Lasanha à Bolonhesa", 45.00));
-        cantina.adicionarItem(new ItemCardapio("S01", "Refrigerante", 8.00));
+        Scanner scanner = new Scanner(System.in);
+        Restaurante restaurante = new Restaurante("Restaurante Interativo do Thiago3");
 
-        cantina.listarCardapio();
+        carregarItensIniciais(restaurante);
 
-        // --- DEMONSTRAÇÃO DO MÉTODO FAZER PEDIDO ---
-        System.out.println("\n===== REALIZANDO PEDIDOS =====");
+        boolean executando = true;
+        while (executando) {
+            exibirMenuPrincipal();
+            System.out.print("Escolha uma opção: ");
+            String opcao = scanner.nextLine();
 
-        // Formata a saída para moeda (R$)
+            switch (opcao) {
+                case "1":
+                    cadastrarNovoItem(scanner, restaurante);
+                    break;
+                case "2":
+                    restaurante.listarCardapio();
+                    break;
+                case "3":
+                    realizarPedido(scanner, restaurante);
+                    break;
+                case "4":
+                    exibirEstatisticas();
+                    break;
+                case "5":
+                    executando = false;
+                    System.out.println("\nEncerrando o sistema. Obrigado!");
+                    break;
+                default:
+                    System.out.println("\n[ERRO] Opção inválida! Por favor, tente novamente.");
+                    break;
+            }
+            if (executando) {
+                System.out.print("\nPressione Enter para continuar...");
+                scanner.nextLine();
+            }
+        }
+        scanner.close();
+    }
+
+    public static void exibirMenuPrincipal() {
+        System.out.println("\n===== SISTEMA DE GESTÃO DE RESTAURANTE =====");
+        System.out.println("1. Cadastrar item no cardápio");
+        System.out.println("2. Ver cardápio completo");
+        System.out.println("3. Fazer pedido");
+        System.out.println("4. Ver estatísticas");
+        System.out.println("5. Sair");
+        System.out.println("==========================================");
+    }
+
+    private static void cadastrarNovoItem(Scanner scanner, Restaurante restaurante) {
+        System.out.println("\n--- Cadastro de Novo Item ---");
+        try {
+            System.out.print("Digite o código do item (ex: B03): ");
+            String codigo = scanner.nextLine();
+            System.out.print("Digite o nome do item: ");
+            String nome = scanner.nextLine();
+            System.out.print("Digite o preço do item (ex: 12.50): ");
+            double preco = scanner.nextDouble();
+            scanner.nextLine();
+
+            ItemCardapio novoItem = new ItemCardapio(codigo, nome, preco);
+            restaurante.adicionarItem(novoItem);
+            System.out.println("\n[SUCESSO] Item '" + nome + "' cadastrado com sucesso!");
+        } catch (InputMismatchException e) {
+            System.out.println("\n[ERRO] O preço deve ser um número. Operação cancelada.");
+            scanner.nextLine();
+        }
+    }
+
+    private static void realizarPedido(Scanner scanner, Restaurante restaurante) {
+        System.out.println("\n--- Fazer um Pedido ---");
+        restaurante.listarCardapio();
+        System.out.print("Digite os códigos dos itens que deseja, separados por espaço: ");
+        String linhaDeCodigos = scanner.nextLine();
+        String[] codigos = linhaDeCodigos.split(" ");
+        double valorTotal = restaurante.fazerPedido(codigos);
         NumberFormat formatoMoeda = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        System.out.println("\n----------------------------------");
+        System.out.println("Valor total do pedido: " + formatoMoeda.format(valorTotal));
+        System.out.println("----------------------------------");
+    }
 
-        // Teste 1: Pedido simples com itens válidos (1 Pizza + 1 Refrigerante)
-        double valorPedido1 = cantina.fazerPedido("P01", "S01");
-        System.out.println("Pedido 1 (P01, S01): Valor total = " + formatoMoeda.format(valorPedido1)); // Esperado: 55.50 + 8.00 = 63.50
+    private static void exibirEstatisticas() {
+        System.out.println("\n--- Estatísticas do Sistema ---");
+        System.out.println("Total de restaurantes criados: " + Restaurante.getTotalRestaurantes());
+        System.out.println("Total de itens já cadastrados no sistema: " + ItemCardapio.getTotalItens());
+        System.out.println("-------------------------------");
+    }
 
-        // Teste 2: Pedido com item repetido e um código inválido (2 Lasanhas + 1 código lixo)
-        double valorPedido2 = cantina.fazerPedido("M01", "X99", "M01");
-        System.out.println("Pedido 2 (M01, X99, M01): Valor total = " + formatoMoeda.format(valorPedido2)); // Esperado: 45.00 + 0 + 45.00 = 90.00
-
-        // Teste 3: Pedido com apenas códigos inválidos
-        double valorPedido3 = cantina.fazerPedido("ABC", "DEF");
-        System.out.println("Pedido 3 (ABC, DEF): Valor total = " + formatoMoeda.format(valorPedido3)); // Esperado: 0.00
-
-        // Teste 4: Pedido vazio (sem códigos)
-        double valorPedido4 = cantina.fazerPedido();
-        System.out.println("Pedido 4 (sem itens): Valor total = " + formatoMoeda.format(valorPedido4)); // Esperado: 0.00
+    private static void carregarItensIniciais(Restaurante restaurante) {
+        restaurante.adicionarItem(new ItemCardapio("P01", "Pizza Margherita", 55.50));
+        restaurante.adicionarItem(new ItemCardapio("M01", "Lasanha à Bolonhesa", 45.00));
+        restaurante.adicionarItem(new ItemCardapio("S01", "Refrigerante", 8.00));
+        restaurante.adicionarItem(new ItemCardapio("B02", "Hambúrguer Duplo", 35.75));
     }
 }
