@@ -1,5 +1,8 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Representa um Restaurante, que possui um nome e um cardápio (lista de itens).
@@ -9,7 +12,7 @@ public class Restaurante {
 
     // --- ATRIBUTOS PRIVADOS ---
     private String nome;
-    private List<ItemCardapio> cardapio; // Usamos a interface List e a implementação ArrayList
+    private List<ItemCardapio> cardapio;
 
     // --- VARIÁVEIS STATIC ---
     private static int totalRestaurantes = 0;
@@ -22,28 +25,18 @@ public class Restaurante {
      */
     public Restaurante(String nome) {
         this.nome = nome;
-        // É crucial inicializar a lista, senão teremos um NullPointerException
         this.cardapio = new ArrayList<>();
-        // Incrementa o contador total de restaurantes
         Restaurante.totalRestaurantes++;
     }
 
     // --- MÉTODOS PÚBLICOS ---
 
-    /**
-     * Adiciona um item à lista do cardápio do restaurante.
-     *
-     * @param item O objeto ItemCardapio a ser adicionado.
-     */
     public void adicionarItem(ItemCardapio item) {
         if (item != null) {
             this.cardapio.add(item);
         }
     }
 
-    /**
-     * Exibe no console todos os itens do cardápio do restaurante de forma organizada.
-     */
     public void listarCardapio() {
         System.out.println("----------------------------------------");
         System.out.println("   Cardápio do Restaurante: " + this.nome);
@@ -52,7 +45,6 @@ public class Restaurante {
         if (this.cardapio.isEmpty()) {
             System.out.println("O cardápio está vazio no momento.");
         } else {
-            // Itera sobre a lista de itens e imprime cada um (usando o método toString() de ItemCardapio)
             for (ItemCardapio item : this.cardapio) {
                 System.out.println(item);
             }
@@ -60,12 +52,36 @@ public class Restaurante {
         System.out.println("----------------------------------------");
     }
 
-    // --- MÉTODO STATIC PÚBLICO ---
-
     /**
-     * Retorna o número total de objetos Restaurante criados.
-     * @return um int com o total de restaurantes.
+     * --- NOVO MÉTODO DE BUSCA ---
+     * Busca no cardápio por itens que correspondam a um ou mais códigos fornecidos.
+     *
+     * @param codigos Uma sequência de um ou mais códigos (String) para buscar.
+     * @return Uma List<ItemCardapio> com os itens encontrados. Retorna uma lista vazia se nenhum item for encontrado.
      */
+    public List<ItemCardapio> buscarItens(String... codigos) {
+        // Cria a lista que armazenará os resultados.
+        List<ItemCardapio> itensEncontrados = new ArrayList<>();
+
+        // Para uma busca eficiente, colocamos os códigos desejados em um Set.
+        // A verificação .contains() em um Set é muito mais rápida (O(1) em média) do que em uma lista.
+        Set<String> codigosParaBuscar = new HashSet<>(Arrays.asList(codigos));
+
+        // Percorre o cardápio do restaurante uma única vez.
+        for (ItemCardapio item : this.cardapio) {
+            // Se o código do item atual está no conjunto de códigos que estamos procurando...
+            if (codigosParaBuscar.contains(item.getCodigo())) {
+                // ...adiciona o item à lista de resultados.
+                itensEncontrados.add(item);
+            }
+        }
+
+        // Retorna a lista de resultados (pode estar vazia).
+        return itensEncontrados;
+    }
+
+
+    // --- MÉTODO STATIC PÚBLICO ---
     public static int getTotalRestaurantes() {
         return totalRestaurantes;
     }

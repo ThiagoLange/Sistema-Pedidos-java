@@ -1,39 +1,52 @@
+import java.util.List;
+
 public class RestauranteApp {
 
     public static void main(String[] args) {
-        // Antes de criar qualquer coisa, os contadores são 0
-        System.out.println("Total de restaurantes no sistema (início): " + Restaurante.getTotalRestaurantes());
-        System.out.println("Total de itens no sistema (início): " + ItemCardapio.getTotalItens());
-        System.out.println("\n===== CRIANDO RESTAURANTE 1: CANTINA DA NONA =====");
+        System.out.println("===== CRIANDO RESTAURANTE 1: CANTINA DA NONA =====");
 
-        // 1. Criar a instância do primeiro restaurante
         Restaurante cantina = new Restaurante("Cantina da Nona");
-
-        // 2. Criar os itens do cardápio
         ItemCardapio p1 = new ItemCardapio("P01", "Pizza Margherita", 55.00);
         ItemCardapio p2 = new ItemCardapio("M01", "Lasanha à Bolonhesa", 45.00);
         ItemCardapio s1 = new ItemCardapio("S01", "Refrigerante", 8.00);
 
-        // 3. Adicionar os itens ao cardápio do restaurante
         cantina.adicionarItem(p1);
         cantina.adicionarItem(p2);
         cantina.adicionarItem(s1);
 
-        // 4. Listar o cardápio
         cantina.listarCardapio();
 
-        System.out.println("\n===== CRIANDO RESTAURANTE 2: SUSHI EXPRESS =====");
+        // --- DEMONSTRAÇÃO DO MÉTODO DE BUSCA ---
+        System.out.println("\n===== TESTANDO A BUSCA DE ITENS =====");
 
-        // 5. Criar um segundo restaurante e seus itens
-        Restaurante sushi = new Restaurante("Sushi Express");
-        sushi.adicionarItem(new ItemCardapio("C01", "Combinado Salmão (20 peças)", 75.00));
-        sushi.adicionarItem(new ItemCardapio("T01", "Temaki Filadélfia", 28.00));
+        // Teste 1: Buscar dois itens existentes ("Pizza" e "Refrigerante")
+        System.out.println("\nBuscando por códigos 'P01' e 'S01':");
+        List<ItemCardapio> resultado1 = cantina.buscarItens("P01", "S01");
+        for (ItemCardapio item : resultado1) {
+            System.out.println("Encontrado: " + item);
+        }
 
-        sushi.listarCardapio();
+        // Teste 2: Buscar um item existente e um inexistente
+        System.out.println("\nBuscando por códigos 'M01' e 'X99' (inexistente):");
+        List<ItemCardapio> resultado2 = cantina.buscarItens("M01", "X99");
+        if (resultado2.isEmpty()) {
+            System.out.println("Nenhum item encontrado.");
+        } else {
+            for (ItemCardapio item : resultado2) {
+                System.out.println("Encontrado: " + item);
+            }
+        }
 
-        System.out.println("\n===== TOTAIS DO SISTEMA =====");
-        // Verificando os contadores estáticos no final
-        System.out.println("Total de restaurantes no sistema (final): " + Restaurante.getTotalRestaurantes());
-        System.out.println("Total de itens no sistema (final): " + ItemCardapio.getTotalItens());
+        // Teste 3: Buscar apenas por códigos inexistentes
+        System.out.println("\nBuscando por códigos 'A01' e 'B02' (inexistentes):");
+        List<ItemCardapio> resultado3 = cantina.buscarItens("A01", "B02");
+        if (resultado3.isEmpty()) {
+            System.out.println("Nenhum item encontrado com os códigos fornecidos.");
+        } else {
+            // Este bloco não será executado
+            for(ItemCardapio item : resultado3){
+                System.out.println("Encontrado: " + item);
+            }
+        }
     }
 }
